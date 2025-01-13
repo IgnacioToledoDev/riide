@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers\apiV1;
 
-class PlanController
-{
+use App\Http\Controllers\Controller;
 
+class PlanController extends Controller
+{
+    public function getPlans() {
+    }
 }
