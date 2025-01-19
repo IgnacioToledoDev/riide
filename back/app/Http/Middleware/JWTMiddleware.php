@@ -21,6 +21,8 @@ class JWTMiddleware
         $excludedRoutes = [
             'api/auth/login',
             'api/auth/register',
+            'api/auth/forgot-password',
+            'api/auth/reset-password',
         ];
 
         if (in_array($request->path(), $excludedRoutes)) {

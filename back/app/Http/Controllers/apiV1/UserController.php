@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\apiV1;
 
+use App\Helpers\UserHelper;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -13,6 +14,10 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 
 class UserController extends Controller
 {
+    private UserHelper $userHelper;
+    public function __construct(UserHelper $userHelper) {
+        $this->userHelper = $userHelper;
+    }
     public function loginAction(Request $request): JsonResponse
     {
         $credentials = $request->only('email', 'password');
@@ -49,6 +54,7 @@ class UserController extends Controller
             'email' => $request->get('email'),
             'password' => Hash::make($request->get('password')),
         ]);
+        $user->assignRole($this->userHelper->roles['user']);
 
         $token = JWTAuth::fromUser($user);
         $success = compact('user', 'token');
@@ -56,7 +62,7 @@ class UserController extends Controller
         return $this->sendResponse($success, 'User register successfully.');
     }
 
-    public function forgotPassWordAction(): JsonResponse
+    public function forgotPasswordAction(): JsonResponse
     {
         // function not implemented yet
 
