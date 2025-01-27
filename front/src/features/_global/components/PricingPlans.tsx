@@ -41,7 +41,7 @@ export default function PricingPlans() {
       <h2 className="text-4xl font-bold text-center mb-12">Elige tu plan en Ride</h2>
       <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
         {plans.map((plan) => (
-            <PricingPlan />
+            <PricingPlan key={plan.name} {...plan} />
         ))}
       </div>
     </section>
