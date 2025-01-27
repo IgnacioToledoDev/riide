@@ -1,7 +1,5 @@
 import { PricingPlan } from "./PricingPlan"
 
-
-
 interface Plan {
   name: string,
   description: string,
