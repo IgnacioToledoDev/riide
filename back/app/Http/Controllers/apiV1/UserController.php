@@ -80,7 +80,7 @@ class UserController extends Controller
             }
 
             $token = Password::createToken($user);
-            Mail::to($email)->send(new ResetPasswordMailable($token));
+            Mail::to($email)->send(new ResetPasswordMailable($token, $email));
 
             return $this->sendResponse([], 'send link successfully.');
         } catch (\Exception $e) {
