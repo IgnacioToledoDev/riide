@@ -4,10 +4,13 @@ namespace App\Http\Controllers\apiV1;
 
 use App\Helpers\UserHelper;
 use App\Http\Controllers\Controller;
+use App\Mail\ResetPasswordMailable;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth;
@@ -62,11 +65,27 @@ class UserController extends Controller
         return $this->sendResponse($success, 'User register successfully.');
     }
 
-    public function forgotPasswordAction(): JsonResponse
+    public function forgotPasswordAction(Request $request): JsonResponse
     {
-        // function not implemented yet
+        $request->validate([
+            'email' => 'required|email',
+        ]);
 
-        return $this->sendResponse([], 'Password reset successfully.');
+        $email = $request->email;
+
+        try {
+            $user = $user = User::where('email', $email)->first();
+            if (!$user) {
+                return $this->sendError('Email does not exist.');
+            }
+
+            $token = Password::createToken($user);
+            Mail::to($email)->send(new ResetPasswordMailable($token));
+
+            return $this->sendResponse([], 'send link successfully.');
+        } catch (\Exception $e) {
+            return $this->sendError('Failed to send recovery email.', 400);
+        }
     }
 
     public function recoverPassword(): JsonResponse
