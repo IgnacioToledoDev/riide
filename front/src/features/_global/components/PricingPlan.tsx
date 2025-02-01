@@ -31,7 +31,11 @@ export const PricingPlan = (plan: Plan) => {
       </ul>
     </CardContent>
     <CardFooter>
-      <Button className="w-full">Seleccionar Plan</Button>
+      <Button className="w-full">
+        <a href="/register">
+          Seleccionar Plan
+        </a>
+      </Button>
     </CardFooter>
   </Card>
   )
