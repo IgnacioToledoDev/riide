@@ -1,6 +1,7 @@
 import { Check } from "lucide-react"
 import { Button } from "../ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Link } from "react-router-dom"
 
 interface Plan {
     name: string,
@@ -32,9 +33,9 @@ export const PricingPlan = (plan: Plan) => {
     </CardContent>
     <CardFooter>
       <Button className="w-full">
-        <a href="/register">
+        <Link to="/signup">
           Seleccionar Plan
-        </a>
+        </Link>
       </Button>
     </CardFooter>
   </Card>
