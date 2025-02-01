@@ -17,7 +17,7 @@ abstract class Controller
         return response()->json($response, $statusCode);
     }
 
-    public function sendError($result, $message, $statusCode = 404): JsonResponse
+    public function sendError($message, $statusCode = 404): JsonResponse
     {
         $response = [
             'success' => false,

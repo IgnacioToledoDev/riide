@@ -21,6 +21,7 @@ class UserController extends Controller
     public function __construct(UserHelper $userHelper) {
         $this->userHelper = $userHelper;
     }
+
     public function loginAction(Request $request): JsonResponse
     {
         $credentials = $request->only('email', 'password');
