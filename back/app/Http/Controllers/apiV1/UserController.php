@@ -88,9 +88,21 @@ class UserController extends Controller
         }
     }
 
-    public function recoverPassword(): JsonResponse
+    public function resetPasswordAction(Request $request): JsonResponse
     {
-        // function not implemented yet
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|string|min:8|confirmed',
+            'c_password' => 'required|string|min:8|same:password',
+            'token' => 'required|string'
+        ]);
+        $user = User::where(['email' => $request->get('email')])->first();
+
+        if (!$user) {
+            return $this->sendError('Email does not exist.');
+        }
+
+        $user->password = Hash::make($request->get('password'));
 
         return $this->sendResponse([], 'Password reset successfully.');
     }
@@ -107,5 +119,17 @@ class UserController extends Controller
         JWTAuth::invalidate(JWTAuth::getToken());
 
         return $this->sendResponse([], 'user logout successfully.');
+    }
+
+    public function getUserAction(Request $request): JsonResponse
+    {
+        $credentials = $request->only('email', 'password');
+
+        $user = auth()->user();
+        $token = JWTAuth::fromUser($user);
+        $success['user'] = $user;
+        $success['token'] = $token;
+
+        return $this->sendResponse($success, 'get user successfully.');
     }
 }
