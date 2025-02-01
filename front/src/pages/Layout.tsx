@@ -8,7 +8,7 @@ interface RouteHandle {
 function Layout() {
   const matches = useMatches();
 
-  const hideHeader = matches.some((match) => match.handle?.hideHeader as RouteHandle);
+  const hideHeader = matches.some((match) => (match.handle as RouteHandle)?.hideHeader);
     return (
       <>
         {!hideHeader && <Header />}
