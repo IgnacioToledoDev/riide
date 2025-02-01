@@ -17,7 +17,7 @@ export function Sidebar() {
   return (
     <div className="flex h-screen flex-col border-r bg-gray-100/40 dark:bg-gray-800/40">
       <div className="flex h-14 items-center border-b px-4">
-        <Link className="flex items-center gap-2 font-semibold" to="#">
+        <Link className="flex items-center gap-2 font-semibold" to="/">
           <Cloud className="h-6 w-6" />
           <span>Ride</span>
         </Link>
