@@ -70,7 +70,12 @@ export default function ResetPasswordForm() {
     mutation.mutate(formData, {
       onSuccess: () => {
         setIsSubmitted(true);
-        navigate("/login");
+        // TODO change this
+        // check other option to redirect
+        const timeout = 3000;
+        setTimeout(() => {
+          navigate("/login");
+        }, timeout);
       },
     });
   };
