@@ -52,7 +52,7 @@ class UserController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return $this->sendError('Validation Error.', $validator->errors());
+            return $this->sendError('Validation Error. ' . $validator->errors(), 400);
         }
 
         $user = User::create([
