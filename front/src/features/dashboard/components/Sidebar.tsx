@@ -13,6 +13,8 @@ import {
   CreditCard,
 } from "lucide-react";
 import { useMutation } from "react-query";
+import CookieManager from "@/features/auth/cookie";
+import { useAuth } from "@/features/_global/context/AuthProvider";
 
 const sidebarItems = [
   { icon: Home, label: "Dashboard", href: "/dashboard" },
@@ -24,11 +26,14 @@ const sidebarItems = [
   { icon: Settings, label: "Settings", href: "/settings" },
 ];
 export function Sidebar() {
+  const { setUser } = useAuth();
+  const cookieManager = new CookieManager();
   const mutation = useMutation<any, Error, any>(async () => {
     const response = await fetch("http://127.0.0.1:8000/api/auth/logout", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${cookieManager.getCookie("token")}`,
       },
     });
 
@@ -44,6 +49,8 @@ export function Sidebar() {
     mutation.mutate("", {
       onSuccess: () => {
         console.log("Usuario desautenticado");
+        cookieManager.removeCookie("token");
+        setUser(null);
         window.location.href = "/login";
       },
       onError: (error) => {

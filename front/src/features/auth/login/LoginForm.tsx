@@ -13,7 +13,8 @@ import { useState } from "react";
 import { EyeIcon, EyeOffIcon, Github, Mail } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useMutation } from "react-query";
-import { setCookie } from "@/features/auth/cookie";
+import CookieManager from "@/features/auth/cookie";
+import { useAuth } from "@/features/_global/context/AuthProvider";
 
 interface loginFormProps {
   email: string;
@@ -28,6 +29,7 @@ const LoginForm = () => {
     email: "",
     password: "",
   });
+  const { setUser } = useAuth();
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
 
   const handleGoogleLogin = () => {
@@ -61,11 +63,14 @@ const LoginForm = () => {
   );
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const cookieManager = new CookieManager();
+
     e.preventDefault();
     mutation.mutate(formData, {
       onSuccess: () => {
-        console.log("Usuario autenticado");
-        setCookie(dataResponse?.token);
+        cookieManager.setCookie("token", dataResponse.data.token);
+        setUser(dataResponse.data.user);
+
         navigate("/dashboard");
       },
       onError: (error) => {

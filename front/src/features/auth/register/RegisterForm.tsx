@@ -17,9 +17,11 @@ import {
   SignUpFormState,
   SignUpFormResponse,
 } from "@/features/auth/register/interfaces/userRegisterInterface";
-import { setCookie } from "../cookie";
+import CookieManager from "../cookie";
+import { useAuth } from "@/features/_global/context/AuthProvider";
 
 export default function SignUpForm() {
+  const { setUser } = useAuthth();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
@@ -61,12 +63,17 @@ export default function SignUpForm() {
     }
   );
 
+  const CookieManagerInstance = new CookieManager();
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     mutation.mutate(formData, {
       onSuccess: (data) => {
         console.log("Registro exitoso:", data);
-        const isSaved = setCookie(dataResponse?.token);
+        const isSaved = CookieManagerInstance.setCookie(
+          CookieManager.allowedKeys[0],
+          dataResponse.data.token
+        );
+        setUser(dataResponse.data.user);
 
         if (data?.success && isSaved) {
           handleRedirect();
