@@ -24,7 +24,6 @@ export default function SignUpForm() {
   const planId = searchParams.get("planId");
   const billingCycle = searchParams.get("billingCycle");
 
-  console.log(planId, billingCycle);
   const [formData, setFormData] = useState<SignUpFormState>({
     name: "",
     email: "",

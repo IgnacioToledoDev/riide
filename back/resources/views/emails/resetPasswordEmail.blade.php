@@ -49,7 +49,7 @@
     <p>Hola,</p>
     <p>Recibimos una solicitud para restablecer tu contraseña. Haz clic en el botón de abajo para continuar:</p>
 
-    <a href="{{ $host }}/reset-password?token={{ $token }}?email={{ $email }}" class="button">Restablecer Contraseña</a>
+    <a href="{{ $host }}/reset-password?token={{ $token }}&email={{ $email }}" class="button">Restablecer Contraseña</a>
 
     <p class="footer">
         Si no solicitaste un cambio de contraseña, puedes ignorar este correo. Este enlace caduca en 60 minutos.
