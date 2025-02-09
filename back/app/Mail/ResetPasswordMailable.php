@@ -41,11 +41,13 @@ class ResetPasswordMailable extends Mailable
      */
     public function content(): Content
     {
+        $appURL = getenv('APP_FRONT_URL');
         return new Content(
             view: 'emails.resetPasswordEmail',
             with: [
                 'token' => $this->token,
                 'email' => $this->email,
+                'host' => 'http://' . $appURL
             ],
         );
     }

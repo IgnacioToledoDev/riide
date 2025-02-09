@@ -24,6 +24,7 @@ class JWTMiddleware
             'api/auth/forgot-password',
             'api/auth/reset-password',
             'api/auth/get-user',
+            'api/plan/all',
         ];
 
         if (in_array($request->path(), $excludedRoutes)) {

@@ -6,12 +6,14 @@ use App\Helpers\UserHelper;
 use App\Http\Controllers\Controller;
 use App\Mail\ResetPasswordMailable;
 use App\Models\User;
+use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
@@ -91,21 +93,34 @@ class UserController extends Controller
 
     public function resetPasswordAction(Request $request): JsonResponse
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
+            'token' => 'required',
             'email' => 'required|email',
-            'password' => 'required|string|min:8|confirmed',
-            'c_password' => 'required|string|min:8|same:password',
-            'token' => 'required|string'
+            'password' => 'required|min:8',
         ]);
-        $user = User::where(['email' => $request->get('email')])->first();
 
-        if (!$user) {
-            return $this->sendError('Email does not exist.');
+        if ($validator->fails()) {
+            return $this->sendError('Validation Error.', $validator->errors(), 400);
         }
 
-        $user->password = Hash::make($request->get('password'));
+        $status = Password::reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function (User $user, string $password) {
+                $user->forceFill([
+                    'password' => Hash::make($password),
+                ])->setRememberToken(Str::random(60)); // todo change this
+                $user->save();
 
-        return $this->sendResponse([], 'Password reset successfully.');
+                event(new PasswordReset($user));
+            }
+        );
+        if ($status === Password::PASSWORD_RESET) {
+            $response = $this->sendResponse(['status' => $status], 'Password reset successfully.');
+        } else {
+            $response = $this->sendError($status, 400);
+        }
+
+        return $response;
     }
 
     public function verifiedUser(): JsonResponse
