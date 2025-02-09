@@ -34,7 +34,7 @@ class PlanController extends Controller
         }
 
         $success = [
-            'plans' => $plans
+            'plans' => $plans->toArray()
         ];
 
         return $this->sendResponse($success, 'Plans retrieved successfully.');
