@@ -32,6 +32,7 @@ class UserController extends Controller
                 return $this->sendError('Invalid Credentials', 401);
             }
 
+            // todo check if the user have a active plan?
             $user = auth()->user();
             $token = JWTAuth::fromUser($user);
             $success['user'] = $user;
