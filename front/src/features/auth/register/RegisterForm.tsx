@@ -9,7 +9,7 @@ import {
   CardDescription,
   CardFooter,
 } from "@/components/ui/card";
-import { Github, Mail } from "lucide-react";
+import { EyeIcon, EyeOffIcon, Github, Mail } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useMutation } from "react-query";
@@ -17,12 +17,20 @@ import {
   SignUpFormState,
   SignUpFormResponse,
 } from "@/features/auth/register/interfaces/userRegisterInterface";
+import { setCookie } from "../cookie";
 
 export default function SignUpForm() {
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
   const searchParams = new URLSearchParams(window.location.search);
   const planId = searchParams.get("planId");
   const billingCycle = searchParams.get("billingCycle");
+
+  const togglePasswordVisibility = () => setShowPassword(!showPassword);
+
+  const toggleConfirmPasswordVisibility = () =>
+    setShowConfirmPassword(!showConfirmPassword);
 
   const [formData, setFormData] = useState<SignUpFormState>({
     name: "",
@@ -33,6 +41,7 @@ export default function SignUpForm() {
     billingCycle: billingCycle || "",
   });
 
+  let dataResponse: any;
   const mutation = useMutation<SignUpFormResponse, Error, SignUpFormState>(
     async (formData) => {
       const response = await fetch("http://127.0.0.1:8000/api/auth/register", {
@@ -47,7 +56,8 @@ export default function SignUpForm() {
         throw new Error("Network response was not ok");
       }
 
-      return response.json();
+      dataResponse = await response.json();
+      return dataResponse;
     }
   );
 
@@ -56,7 +66,9 @@ export default function SignUpForm() {
     mutation.mutate(formData, {
       onSuccess: (data) => {
         console.log("Registro exitoso:", data);
-        if (data?.success) {
+        const isSaved = setCookie(dataResponse?.token);
+
+        if (data?.success && isSaved) {
           handleRedirect();
         }
       },
@@ -117,30 +129,68 @@ export default function SignUpForm() {
           </div>
           <div className="space-y-2">
             <Label htmlFor="password">Contraseña</Label>
-            <Input
-              id="password"
-              type="password"
-              required
-              value={formData.password}
-              onChange={(e) =>
-                setFormData({ ...formData, password: e.target.value })
-              }
-            />
+            <div className="relative">
+              <Input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                required
+                value={formData.password}
+                onChange={(e) =>
+                  setFormData({ ...formData, password: e.target.value })
+                }
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent space-y-2"
+                onClick={togglePasswordVisibility}
+                aria-label={
+                  showPassword ? "Ocultar contraseña" : "Mostrar contraseña"
+                }
+              >
+                {showPassword ? (
+                  <EyeOffIcon className="h-4 w-4" />
+                ) : (
+                  <EyeIcon className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
           </div>
           <div className="space-y-2">
             <Label htmlFor="c_password">Repetir contraseña</Label>
-            <Input
-              id="c_password"
-              type="password"
-              required
-              value={formData.password_confirmation}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  password_confirmation: e.target.value,
-                })
-              }
-            />
+            <div className="relative">
+              <Input
+                id="c_password"
+                type={showConfirmPassword ? "text" : "password"}
+                required
+                value={formData.password_confirmation}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    password_confirmation: e.target.value,
+                  })
+                }
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent space-y-2"
+                onClick={toggleConfirmPasswordVisibility}
+                aria-label={
+                  showConfirmPassword
+                    ? "Ocultar contraseña"
+                    : "Mostrar contraseña"
+                }
+              >
+                {showConfirmPassword ? (
+                  <EyeOffIcon className="h-4 w-4" />
+                ) : (
+                  <EyeIcon className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
           </div>
           <Button
             type="submit"

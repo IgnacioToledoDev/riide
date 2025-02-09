@@ -13,6 +13,7 @@ import { useState } from "react";
 import { EyeIcon, EyeOffIcon, Github, Mail } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useMutation } from "react-query";
+import { setCookie } from "@/features/auth/cookie";
 
 interface loginFormProps {
   email: string;
@@ -38,6 +39,7 @@ const LoginForm = () => {
     // Lógica para iniciar sesión con GitHub
     console.log("Iniciando sesión con GitHub");
   };
+  let dataResponse: any;
 
   const mutation = useMutation<loginFormProps, Error, loginFormProps>(
     async (formData) => {
@@ -53,7 +55,8 @@ const LoginForm = () => {
         throw new Error("Network response was not ok");
       }
 
-      return response.json();
+      dataResponse = await response.json();
+      return dataResponse;
     }
   );
 
@@ -62,6 +65,7 @@ const LoginForm = () => {
     mutation.mutate(formData, {
       onSuccess: () => {
         console.log("Usuario autenticado");
+        setCookie(dataResponse?.token);
         navigate("/dashboard");
       },
       onError: (error) => {

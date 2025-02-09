@@ -11,7 +11,7 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Lock } from "lucide-react";
+import { Lock, EyeIcon, EyeOffIcon } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useMutation } from "react-query";
 
@@ -23,12 +23,19 @@ interface ResetPasswordFormProps {
 }
 
 export default function ResetPasswordForm() {
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [error, setError] = useState("");
   const searchParams = new URLSearchParams(window.location.search);
   const token = searchParams.get("token");
   const email = searchParams.get("email");
+
+  const togglePasswordVisibility = () => setShowPassword(!showPassword);
+
+  const toggleConfirmPasswordVisibility = () =>
+    setShowConfirmPassword(!showConfirmPassword);
 
   const [formData, setFormData] = useState<ResetPasswordFormProps>({
     password: "",
@@ -103,32 +110,70 @@ export default function ResetPasswordForm() {
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="password">Nueva contraseña</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={formData.password}
-                  onChange={(e) =>
-                    setFormData({ ...formData, password: e.target.value })
-                  }
-                  required
-                />
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    value={formData.password}
+                    onChange={(e) =>
+                      setFormData({ ...formData, password: e.target.value })
+                    }
+                    required
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent space-y-2"
+                    onClick={togglePasswordVisibility}
+                    aria-label={
+                      showPassword ? "Ocultar contraseña" : "Mostrar contraseña"
+                    }
+                  >
+                    {showPassword ? (
+                      <EyeOffIcon className="h-4 w-4" />
+                    ) : (
+                      <EyeIcon className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="confirmPassword">
                   Confirmar nueva contraseña
                 </Label>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  value={formData.confirmPassword}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      confirmPassword: e.target.value,
-                    })
-                  }
-                  required
-                />
+                <div className="relative">
+                  <Input
+                    id="confirmPassword"
+                    type={showConfirmPassword ? "text" : "password"}
+                    value={formData.confirmPassword}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        confirmPassword: e.target.value,
+                      })
+                    }
+                    required
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent space-y-2"
+                    onClick={toggleConfirmPasswordVisibility}
+                    aria-label={
+                      showConfirmPassword
+                        ? "Ocultar contraseña"
+                        : "Mostrar contraseña"
+                    }
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOffIcon className="h-4 w-4" />
+                    ) : (
+                      <EyeIcon className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
               </div>
               {error && <p className="text-sm text-red-500">{error}</p>}
               <Button type="submit" className="w-full">
