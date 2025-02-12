@@ -7,9 +7,11 @@ use App\Http\Controllers\Controller;
 use App\Mail\ResetPasswordMailable;
 use App\Models\User;
 use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
@@ -52,10 +54,16 @@ class UserController extends Controller
             'password' => 'required|string|min:6|confirmed',
             'billingCycle' => 'required|string|max:255',
             'planId' => 'required|string',
+            'recaptchaToken' => 'required',
         ]);
 
         if ($validator->fails()) {
             return $this->sendError('Validation Error. ' . $validator->errors(), 400);
+        }
+
+        $isValidRecaptcha = $this->isValidRecaptcha($request->all()['recaptchaToken']);
+        if($isValidRecaptcha){
+            return $this->sendError('reCaptcha not valid', 422);
         }
 
         $user = User::create([
@@ -78,7 +86,7 @@ class UserController extends Controller
         ]);
 
         $email = $request->email;
-
+        // todo only if the user no have a active token
         try {
             $user = $user = User::where('email', $email)->first();
             if (!$user) {
@@ -150,5 +158,29 @@ class UserController extends Controller
         $success['token'] = $token;
 
         return $this->sendResponse($success, 'get user successfully.');
+    }
+
+    /**
+     * @throws ConnectionException
+     */
+    private function isValidRecaptcha(string $recaptchaToken): bool
+    {
+        try {
+            $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+                'secret' => env('RECAPTCHA_SECRET'),
+                'response' => $recaptchaToken,
+            ]);
+
+            $httpResponse = $response->json();
+            if (!$httpResponse['success'] || $httpResponse['score'] < 0.5) {
+                return false;
+            }
+            var_dump($httpResponse);
+
+            return true;
+        } catch (ConnectionException $connectionException) {
+            throw new ConnectionException($connectionException->getMessage());
+        }
+
     }
 }

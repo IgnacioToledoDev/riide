@@ -26,7 +26,6 @@ export default function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { executeRecaptcha } = useGoogleReCaptcha();
-
   const navigate = useNavigate();
   const searchParams = new URLSearchParams(window.location.search);
   const planId = searchParams.get("planId");
@@ -68,32 +67,39 @@ export default function SignUpForm() {
   );
 
   const CookieManagerInstance = new CookieManager();
+  const getRecaptchaToken = (): Promise<string> => {
+    if (!executeRecaptcha) {
+      console.error("Recaptcha not loaded");
+      throw new Error("Recaptcha not loaded");
+    }
+    const token = executeRecaptcha("register").then((token) => token as string);
+
+    return token;
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    if (!executeRecaptcha) {
-      throw new Error("Recaptcha not loaded");
-      return;
-    }
-
-    const token = await executeRecaptcha("register");
+    const token = await getRecaptchaToken();
     setFormData({ ...formData, recaptchaToken: token });
-    console.log("Recaptcha form data:", formData);
-    mutation.mutate(formData, {
-      onSuccess: (data) => {
-        const isSaved = CookieManagerInstance.setCookie(
-          CookieManager.allowedKeys[0],
-          dataResponse.data.token
-        );
-        setUser(dataResponse.data.user);
-        if (data?.success && isSaved) {
-          handleRedirect();
-        }
-      },
-      onError: (error) => {
-        console.trace("Error al registrar:", error);
-      },
-    });
+
+    mutation.mutate(
+      { ...formData, recaptchaToken: token },
+      {
+        onSuccess: (data) => {
+          const isCookieSaved = CookieManagerInstance.setCookie(
+            CookieManager.allowedKeys[0],
+            dataResponse.data.token
+          );
+          setUser(dataResponse.data.user);
+          if (data?.success && isCookieSaved) {
+            handleRedirect();
+          }
+        },
+        onError: (error) => {
+          console.trace("Error al registrar:", error);
+        },
+      }
+    );
   };
 
   const handleRedirect = () => {
