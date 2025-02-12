@@ -9,8 +9,10 @@ interface Plan {
   id: number;
   name: string;
   description: string;
-  price: string;
-  billingCycle: string;
+  prices: {
+    monthly: number;
+    yearly: number;
+  };
   isPopular: boolean;
   storageLimit: number;
   bandwidthLimit: number;
@@ -34,10 +36,7 @@ export default function PricingPlans() {
   if (error) return <div>Error: {error?.message}</div>; // TODO pending change this for a error component
 
   data.data.plans.map((plan: Plan) => {
-    // TODO change this to adapt to diferrent billing cycles
-    if (plan.billingCycle === "monthly") {
-      plans.push(plan);
-    }
+    plans.push(plan);
   });
 
   return (
@@ -64,9 +63,20 @@ export default function PricingPlans() {
         )}
       </div>
       <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto pt-4">
-        {plans.map((plan) => (
-          <PricingPlan key={plan.id} {...plan} />
-        ))}
+        {plans.map((plan) => {
+          const selectedPrice = isAnnual
+            ? plan.prices.yearly
+            : plan.prices.monthly;
+          const billingCycleKey = isAnnual ? "yearly" : "monthly";
+          return (
+            <PricingPlan
+              key={plan.id}
+              {...plan}
+              price={`${selectedPrice}`}
+              billingCycle={billingCycleKey}
+            />
+          );
+        })}
       </div>
     </section>
   );
