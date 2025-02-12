@@ -26,7 +26,7 @@ const sidebarItems = [
   { icon: Settings, label: "Settings", href: "/settings" },
 ];
 export function Sidebar() {
-  const { setUser } = useAuth();
+  const { user, setUser } = useAuth();
   const cookieManager = new CookieManager();
   const mutation = useMutation<any, Error, any>(async () => {
     const response = await fetch("http://127.0.0.1:8000/api/auth/logout", {
@@ -48,7 +48,6 @@ export function Sidebar() {
     console.log("Cerrar sesión");
     mutation.mutate("", {
       onSuccess: () => {
-        console.log("Usuario desautenticado");
         cookieManager.removeCookie("token");
         setUser(null);
         window.location.href = "/login";
@@ -62,7 +61,10 @@ export function Sidebar() {
   return (
     <div className="flex h-screen flex-col border-r bg-gray-100/40 dark:bg-gray-800/40">
       <div className="flex h-14 items-center border-b px-4">
-        <Link className="flex items-center gap-2 font-semibold" to="/">
+        <Link
+          className="flex items-center gap-2 font-semibold"
+          to={user ? "/dashboard" : "/"}
+        >
           <Cloud className="h-6 w-6" />
           <span>Ride</span>
         </Link>

@@ -229,6 +229,27 @@ export default function SignUpForm() {
             Error: {mutation.error?.message}
           </p>
         )}
+        <p className="mt-4 text-xs text-muted-foreground text-center">
+          Este sitio está protegido por reCAPTCHA y se aplican la{" "}
+          <a
+            href="https://policies.google.com/privacy"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline"
+          >
+            Política de Privacidad
+          </a>{" "}
+          y los{" "}
+          <a
+            href="https://policies.google.com/terms"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline"
+          >
+            Términos de Servicio
+          </a>{" "}
+          de Google.
+        </p>
       </CardContent>
       <CardFooter className="flex justify-center">
         <p className="text-sm text-muted-foreground">

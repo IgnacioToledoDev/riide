@@ -1,5 +1,9 @@
 import { PricingPlan } from "./PricingPlan";
 import { useQuery } from "react-query";
+import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { useState } from "react";
 
 interface Plan {
   id: number;
@@ -14,8 +18,10 @@ interface Plan {
 }
 
 export default function PricingPlans() {
+  const [isAnnual, setIsAnnual] = useState(false);
   const plans: Plan[] = [];
   const { isLoading, error, data } = useQuery("plans", async () => {
+    // todo change this to get the URL from a env variable
     const response = await fetch("http://127.0.0.1:8000/api/plan/all");
     if (!response.ok) {
       throw new Error("Network response was not ok");
@@ -39,7 +45,25 @@ export default function PricingPlans() {
       <h2 className="text-4xl font-bold text-center mb-12">
         Elige tu plan en Ride
       </h2>
-      <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+      <div className="flex justify-center items-center space-x-4 mb-12">
+        <Label htmlFor="billing-cycle" className="text-sm font-medium">
+          Facturación Mensual
+        </Label>
+        <Switch
+          id="billing-cycle"
+          checked={isAnnual}
+          onCheckedChange={setIsAnnual}
+        />
+        <Label htmlFor="billing-cycle" className="text-sm font-medium">
+          Facturación Anual
+        </Label>
+        {isAnnual && (
+          <Badge variant="secondary" className="ml-2">
+            Ahorra hasta 15%
+          </Badge>
+        )}
+      </div>
+      <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto pt-4">
         {plans.map((plan) => (
           <PricingPlan key={plan.id} {...plan} />
         ))}
