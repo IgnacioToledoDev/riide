@@ -19,11 +19,14 @@ import {
 } from "@/features/auth/register/interfaces/userRegisterInterface";
 import CookieManager from "../cookie";
 import { useAuth } from "@/features/_global/context/AuthProvider";
+import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 
 export default function SignUpForm() {
-  const { setUser } = useAuthth();
+  const { setUser } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const { executeRecaptcha } = useGoogleReCaptcha();
+
   const navigate = useNavigate();
   const searchParams = new URLSearchParams(window.location.search);
   const planId = searchParams.get("planId");
@@ -41,6 +44,7 @@ export default function SignUpForm() {
     password_confirmation: "",
     planId: planId || "",
     billingCycle: billingCycle || "",
+    recaptchaToken: "",
   });
 
   let dataResponse: any;
@@ -66,21 +70,28 @@ export default function SignUpForm() {
   const CookieManagerInstance = new CookieManager();
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (!executeRecaptcha) {
+      throw new Error("Recaptcha not loaded");
+      return;
+    }
+
+    const token = await executeRecaptcha("register");
+    setFormData({ ...formData, recaptchaToken: token });
+    console.log("Recaptcha form data:", formData);
     mutation.mutate(formData, {
       onSuccess: (data) => {
-        console.log("Registro exitoso:", data);
         const isSaved = CookieManagerInstance.setCookie(
           CookieManager.allowedKeys[0],
           dataResponse.data.token
         );
         setUser(dataResponse.data.user);
-
         if (data?.success && isSaved) {
           handleRedirect();
         }
       },
       onError: (error) => {
-        console.error("Error al registrar:", error);
+        console.trace("Error al registrar:", error);
       },
     });
   };

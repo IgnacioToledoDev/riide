@@ -5,6 +5,7 @@ export interface SignUpFormState {
   password_confirmation: string;
   planId: number | string;
   billingCycle: string;
+  recaptchaToken: string;
 }
 
 export interface SignUpFormResponse {
