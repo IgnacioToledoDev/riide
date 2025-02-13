@@ -1,8 +1,10 @@
 import { Button } from "@/features/_global/ui/button";
 import { Cloud, Home } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/features/_global/context/AuthProvider";
 
 export default function NotFound() {
+  const { user } = useAuth();
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-background px-4 text-center">
       <Cloud className="h-24 w-24 text-primary mb-8 animate-bounce" />
@@ -12,7 +14,7 @@ export default function NotFound() {
         buscando no existe o ha sido movida.
       </p>
       <Button asChild size="lg">
-        <Link to="/" className="flex items-center">
+        <Link to={user ? "/dashboard" : "/"} className="flex items-center">
           <Home className="mr-2 h-4 w-4" />
           Volver a la página principal
         </Link>
