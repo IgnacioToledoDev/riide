@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
+import { Loading } from "./Loading";
 
 interface Plan {
   id: number;
@@ -31,7 +32,7 @@ export default function PricingPlans() {
     return response.json();
   });
 
-  if (isLoading) return <div>Loading...</div>; // TODO pending change this fot a spinner
+  if (isLoading) return <Loading />; // TODO pending change this fot a spinner
 
   if (error) return <div>Error: {error?.message}</div>; // TODO pending change this for a error component
 
