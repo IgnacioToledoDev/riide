@@ -78,10 +78,12 @@ class PlanResource extends Resource
                     ->label('Limite de RAM')
                     ->sortable(),
                 IconColumn::make('is_public')
+                    ->label('Publicado')
                     ->boolean()
                     ->trueIcon('heroicon-o-check-badge')
                     ->falseIcon('heroicon-o-x-mark'),
                 IconColumn::make('is_popular')
+                    ->label('Mas popular')
                     ->boolean()
                     ->trueIcon('heroicon-o-check-badge')
                     ->falseIcon('heroicon-o-x-mark'),

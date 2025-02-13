@@ -6,10 +6,12 @@ use App\Filament\Resources\PlanPricingResource\Pages;
 use App\Filament\Resources\PlanPricingResource\RelationManagers;
 use App\Models\Plan;
 use App\Models\PlanPricing;
+use App\Models\Types\BillingCycle;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -21,10 +23,6 @@ class PlanPricingResource extends Resource
 {
     // todo!!! when create a monthly pricing cannot create other with the same billing cycle
     protected static ?string $model = PlanPricing::class;
-    protected static array $billingCycleOptions = [
-        PlanPricing::MONTHLY  => 'Mensual',
-        PlanPricing::YEARLY=> 'Anual'
-    ];
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Planes';
@@ -34,7 +32,6 @@ class PlanPricingResource extends Resource
 
     public static function form(Form $form): Form
     {
-        // todo! in the billing cycle reemplace with "mensual" and "anual" text
         return $form
             ->schema([
                 Select::make('plan_id')
@@ -46,7 +43,7 @@ class PlanPricingResource extends Resource
                     ->numeric()
                     ->label('Precio'),
                 Select::make('billing_cycle')
-                    ->options(self::$billingCycleOptions)
+                    ->options(collect(BillingCycle::cases())->mapWithKeys(fn($cycle) => [$cycle->value => $cycle->getLabel()]))
                     ->required()
                     ->placeholder('Seleccione una opcion...')
                     ->label('Forma de subcripcion al plan'),
@@ -62,10 +59,14 @@ class PlanPricingResource extends Resource
                 TextColumn::make('price')
                     ->label('Precio'),
                 TextColumn::make('billing_cycle')
-                    ->label('Subcripcion'),
+                    ->label('Subcripcion')
+                    ->formatStateUsing(fn (string $state) => BillingCycle::tryFrom($state)?->getLabel() ?? $state),
             ])
             ->filters([
-                //
+                SelectFilter::make('billing_cycle')
+                    ->label('Filtrar por Suscripción')
+                    ->options(collect(BillingCycle::cases())->mapWithKeys(fn ($cycle) => [$cycle->value => $cycle->getLabel()]))
+                    ->attribute('billing_cycle'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

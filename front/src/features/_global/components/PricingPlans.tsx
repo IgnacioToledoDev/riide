@@ -21,7 +21,7 @@ interface Plan {
 }
 
 export default function PricingPlans() {
-  const [isAnnual, setIsAnnual] = useState(false);
+  const [isAnnual, setIsAnnual] = useState(true);
   const plans: Plan[] = [];
   const { isLoading, error, data } = useQuery("plans", async () => {
     // todo change this to get the URL from a env variable
