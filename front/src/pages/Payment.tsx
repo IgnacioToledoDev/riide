@@ -19,8 +19,7 @@ import NavbarOnlyHome from "@/features/_global/components/NavbarOnlyHome";
 
 // TODO: Reemplazar con tu propio client ID
 const initialOptions = {
-  clientId:
-    "ATbebAQolD1uZhuPtlC9lp-FbNqO7XYnj1m8wlZj6e9WW0ICI3KOsjrbu7kDZ04HeABbsEx24jB925up",
+  clientId: import.meta.env.VITE_PAYPAL_CLIENT_ID,
   currency: "USD",
   intent: "capture",
 };
