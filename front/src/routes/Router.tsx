@@ -9,9 +9,10 @@ import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import { Payment } from "@/pages/Payment";
 import DashboardPage from "@/pages/Dashboard";
-import ForgotPasswordPage from "@/pages/ResetPassword";
-import ResetPasswordPage from "@/pages/ForgotPassword";
+
 import NotFound from "@/pages/NotFound";
+import ForgotPasswordPage from "@/pages/ForgotPassword";
+import ResetPasswordPage from "@/pages/ResetPassword";
 
 interface RouteHandle {
   hideHeader?: boolean;

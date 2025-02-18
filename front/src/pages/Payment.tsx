@@ -1,37 +1,182 @@
-import { Card, CardHeader, CardFooter, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardFooter,
+  CardTitle,
+  CardContent,
+  CardDescription,
+} from "@/components/ui/card";
 import { Button } from "@/features/_global/ui/button";
+import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
+import { useEffect, useState } from "react";
+import { CreditCard, Shield } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Loading } from "@/features/_global/components/Loading";
+import NavbarOnlyHome from "@/features/_global/components/NavbarOnlyHome";
+
+// TODO: Reemplazar con tu propio client ID
+const initialOptions = {
+  clientId:
+    "ATbebAQolD1uZhuPtlC9lp-FbNqO7XYnj1m8wlZj6e9WW0ICI3KOsjrbu7kDZ04HeABbsEx24jB925up",
+  currency: "USD",
+  intent: "capture",
+};
 
 export const Payment = () => {
-    const handlePayPalPayment = () => {
-        // Aquí iría la lógica real para iniciar el pago con PayPal
-        console.log("Iniciando pago con PayPal")
-        alert("Pago simulado con éxito. En una implementación real, serías redirigido a PayPal.")
-      }
+  const [selectedPlan, setSelectedPlan] = useState("Basic");
+  const [billingCycle, setBillingCycle] = useState("monthly");
+  const [isProcessing, setIsProcessing] = useState(false);
+  const searchParams = new URLSearchParams(window.location.search);
 
-    return (
-        <div className="min-h-screen bg-background flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <Card className="w-full max-w-md mx-auto">
+  useEffect(() => {
+    const planFromUrl = searchParams.get("plan");
+    if (planFromUrl) {
+      setSelectedPlan(planFromUrl);
+    }
+  }, [searchParams]);
+  const price = billingCycle === "monthly" ? "9.99" : "99.99";
+
+  const handleCardPayment = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setIsProcessing(true);
+    // Simular procesamiento de pago
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    setIsProcessing(false);
+    alert("Pago con tarjeta procesado con éxito!");
+  };
+
+  const handlePayPalPayment = async (data: any, actions: any) => {
+    return actions.order.create({
+      purchase_units: [
+        {
+          amount: {
+            value: price.toString(),
+          },
+        },
+      ],
+    });
+  };
+
+  const onPayPalApprove = async (data: any, actions: any) => {
+    return actions.order.capture().then((details: any) => {
+      alert(
+        "Pago con PayPal procesado con éxito! ID de transacción: " + details.id
+      );
+    });
+  };
+
+  return (
+    <PayPalScriptProvider options={initialOptions}>
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+        <NavbarOnlyHome />
+        <div className="max-w-3xl mx-auto pt-6">
+          <Card className="shadow-lg">
             <CardHeader>
-            <CardTitle>Pago con PayPal</CardTitle>
-            <CardDescription>Completa tu suscripción a Ride</CardDescription>
+              <CardTitle className="text-3xl font-bold">
+                Completar suscripción
+              </CardTitle>
+              <CardDescription>
+                Estás a un paso de impulsar tu aplicación con Ride
+              </CardDescription>
             </CardHeader>
             <CardContent>
-            <div className="space-y-4">
-                <div>
-                <p className="text-lg font-semibold">Plan seleccionado: Cloud Plan</p>
-                <p className="text-2xl font-bold">$25/mes</p>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                Al hacer clic en "Pagar con PayPal", serás redirigido a PayPal para completar tu pago de forma segura.
+              <div className="mb-6">
+                <h3 className="text-xl font-semibold mb-2">Resumen del plan</h3>
+                <p className="text-lg font-medium">{selectedPlan}</p>
+                <p className="text-3xl font-bold mt-2">
+                  ${price}
+                  <span className="text-base font-normal">
+                    /{billingCycle === "monthly" ? "mes" : "año"}
+                  </span>
                 </p>
-            </div>
+                <RadioGroup
+                  defaultValue={billingCycle}
+                  onValueChange={setBillingCycle}
+                  className="mt-2"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="monthly" id="monthly" />
+                    <Label htmlFor="monthly">Mensual</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="annual" id="annual" />
+                    <Label htmlFor="annual">Anual (2 meses gratis)</Label>
+                  </div>
+                </RadioGroup>
+                {/* <ul className="mt-4 space-y-2">
+                  {plan.features.map((feature, index) => (
+                    <li key={index} className="flex items-center">
+                      <Check className="h-5 w-5 text-green-500 mr-2" />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul> */}
+              </div>
+              <Tabs defaultValue="card">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="card">Tarjeta de Crédito</TabsTrigger>
+                  <TabsTrigger value="paypal">PayPal</TabsTrigger>
+                </TabsList>
+                <TabsContent value="card">
+                  <form onSubmit={handleCardPayment} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="cardNumber">Número de tarjeta</Label>
+                      <Input
+                        id="cardNumber"
+                        placeholder="1234 5678 9012 3456"
+                        required
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="expiry">Fecha de expiración</Label>
+                        <Input id="expiry" placeholder="MM / YY" required />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="cvc">CVC</Label>
+                        <Input id="cvc" placeholder="123" required />
+                      </div>
+                    </div>
+                    <Button
+                      type="submit"
+                      className="w-full"
+                      disabled={isProcessing}
+                    >
+                      {isProcessing ? (
+                        <>
+                          <Loading className="mr-2" />
+                          Procesando...
+                        </>
+                      ) : (
+                        <>
+                          <CreditCard className="mr-2 h-4 w-4" />
+                          Pagar ${price}
+                        </>
+                      )}
+                    </Button>
+                  </form>
+                </TabsContent>
+                <TabsContent value="paypal">
+                  <PayPalButtons
+                    createOrder={handlePayPalPayment}
+                    onApprove={onPayPalApprove}
+                    style={{ layout: "vertical" }}
+                  />
+                </TabsContent>
+              </Tabs>
             </CardContent>
-            <CardFooter>
-            <Button onClick={handlePayPalPayment} className="w-full">
-                Pagar con PayPal
-            </Button>
+            <CardFooter className="justify-center">
+              <p className="text-sm text-muted-foreground flex items-center">
+                <Shield className="mr-2 h-4 w-4" />
+                Pago seguro con encriptación de 256 bits
+              </p>
             </CardFooter>
-        </Card>
+          </Card>
         </div>
-    )
-}
+      </div>
+    </PayPalScriptProvider>
+  );
+};
