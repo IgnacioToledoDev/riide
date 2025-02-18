@@ -9,7 +9,6 @@ import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import { Payment } from "@/pages/Payment";
 import DashboardPage from "@/pages/Dashboard";
-
 import NotFound from "@/pages/NotFound";
 import ForgotPasswordPage from "@/pages/ForgotPassword";
 import ResetPasswordPage from "@/pages/ResetPassword";
